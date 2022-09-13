@@ -1,0 +1,4 @@
+2021-11-17  16:55:04 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py Starting new HTTPS connection (1): dataapi.bazhuayu.com:443 
+2021-11-17  16:55:09 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py https://dataapi.bazhuayu.com:443 "POST /token HTTP/1.1" 200 325 
+2021-11-17  16:55:09 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py Starting new HTTPS connection (1): dataapi.bazhuayu.com:443 
+2021-11-17  16:55:11 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py https://dataapi.bazhuayu.com:443 "GET /api/alldata/GetDataOfTaskByOffset?size=1000&taskId=db871981-f22e-3187-fdb0-6b8b9303bf0b&offset=0 HTTP/1.1" 200 None 

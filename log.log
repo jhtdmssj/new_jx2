@@ -1,0 +1,49 @@
+Watching for file changes with StatReloader
+Exception in thread django-main-thread:
+Traceback (most recent call last):
+  File "/usr/local/python38/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/local/python38/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/utils/autoreload.py", line 53, in wrapper
+    fn(*args, **kwargs)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/management/commands/runserver.py", line 117, in inner_run
+    self.check(display_num_errors=True)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/management/base.py", line 392, in check
+    all_issues = self._run_checks(
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/management/base.py", line 382, in _run_checks
+    return checks.run_checks(**kwargs)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/checks/registry.py", line 72, in run_checks
+    new_errors = check(app_configs=app_configs)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/checks/urls.py", line 13, in check_url_config
+    return check_resolver(resolver)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/core/checks/urls.py", line 23, in check_resolver
+    return check_method()
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/urls/resolvers.py", line 407, in check
+    for pattern in self.url_patterns:
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/utils/functional.py", line 48, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/urls/resolvers.py", line 588, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/utils/functional.py", line 48, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+  File "/usr/local/python38/lib/python3.8/site-packages/Django-3.0.1-py3.8.egg/django/urls/resolvers.py", line 581, in urlconf_module
+    return import_module(self.urlconf_name)
+  File "/usr/local/python38/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 783, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/python/new_jx/new_jx/urls.py", line 23, in <module>
+    from houtai import index,views,upload_excel,tests
+  File "/python/new_jx/houtai/index.py", line 11, in <module>
+    import requests
+ModuleNotFoundError: No module named 'requests'
+2021-11-17  16:38:42 Wed  root INFO D:\new_jx\houtai\bazhuayu_j.py 213 
+2021-11-17  16:38:42 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py Starting new HTTPS connection (1): dataapi.bazhuayu.com:443 
+2021-11-17  16:38:43 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py https://dataapi.bazhuayu.com:443 "POST /token HTTP/1.1" 200 325 
+2021-11-17  16:38:43 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py Starting new HTTPS connection (1): dataapi.bazhuayu.com:443 
+2021-11-17  16:38:44 Wed  urllib3.connectionpool DEBUG D:\python\lib\site-packages\urllib3\connectionpool.py https://dataapi.bazhuayu.com:443 "GET /api/alldata/GetDataOfTaskByOffset?offset=0&taskId=db871981-f22e-3187-fdb0-6b8b9303bf0b&size=1000 HTTP/1.1" 200 None 
