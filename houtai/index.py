@@ -2188,12 +2188,12 @@ def qianyi_upload(request):
             cursor2.execute(
                 "INSERT INTO mission_up (tiaoma,miaoshu,querenshuoming,beizhu,renwumingcheng,zhuangtai) "
                 "VALUES ('{}','{}','{}','{}','{}','{}')".format(
+                    table.row_values(j)[0],
                     table.row_values(j)[1],
                     table.row_values(j)[2],
                     table.row_values(j)[3],
                     table.row_values(j)[4],
-                    table.row_values(j)[5],
-                    int(table.row_values(j)[6]),
+                    int(table.row_values(j)[5]),
                 ))
             row = cursor2.fetchall()
     return HttpResponse()
