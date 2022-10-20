@@ -52,7 +52,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', #跨域设置
     'django.middleware.common.CommonMiddleware',#跨域设置
 ]
-
+#正则配置:
+CORS_ORIGIN_REGEX_WHITELIST  =(r'^(https?://)?（\w+\.)?jim\.com $',)
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 ROOT_URLCONF = 'new_jx.urls'
 
 TEMPLATES = [

@@ -3,24 +3,22 @@ import os
 
 from django.db import connection
 from django.http import JsonResponse, HttpResponse
-from houtai.models import User, JxZhouqibiao, jx_jixiao, jx_jixiao_all, w_work_info_tmp, j_mission_up
+from houtai.models import User, jx_jixiao, j_mission_up
 from django.db.models import Q
 import xlwt, xlrd
 import datetime
 from io import BytesIO
-import urllib, sys
+import urllib
 import urllib.request
 import ssl
 import time
 import json
-from new_jx import settings
-
-
+from tqdm import tqdm
 def timec(request):
-    # 获取今天是第几周
+    for i in tqdm(range(100), desc='Test'):
+        tqdm.write('当前i={}'.format(i))
+        time.sleep(2)
     return HttpResponse()
-
-
 def login(request):
     username = request.GET.get('value1')
     password2 = request.GET.get('value2')
@@ -35,8 +33,6 @@ def login(request):
     else:
         return JsonResponse({'code': 1, 'message': '用户名或密码错误，请重新输入'})
     return
-
-
 # 后台跑库 已经忘记干嘛用的了（- -！）
 def houtai_jx(request):
     # 第一步 jx_jixiao表里的内容全部删除
@@ -519,8 +515,6 @@ def houtai_jx(request):
 
     data['list'] = (list(c))
     return JsonResponse(data, safe=False)
-
-
 # 绩效表
 def jixiao(request):
     data = {}
@@ -532,8 +526,6 @@ def jixiao(request):
         book = jx_jixiao.objects.all().values()  # 获取值values放后面
     data['list'] = (list(book))
     return JsonResponse(data)
-
-
 # 每周数据采集情况 表1
 def tongjitubiao(request):
     data = {}
@@ -553,8 +545,6 @@ def tongjitubiao(request):
         })
     data['list'] = (list(c))
     return JsonResponse(data)
-
-
 # 提交量-P表 表2
 def tijiaoliangP(request):
     data = {}
@@ -576,8 +566,6 @@ def tijiaoliangP(request):
         })
     data['list'] = (list(c))
     return JsonResponse(data)
-
-
 def tijiaoliangP2(request):
     data = {}
     c = []
@@ -817,7 +805,26 @@ def stfchulibiao(request):
     data['list'] = (list(c))
     return JsonResponse(data)
 
+def pinleicaijipaiming_P10(request):
+    data = {}
+    c = []
+    cursor1 = connection.cursor()
+    cursor1.execute(
+        "SELECT * FROM `w_category_yearcount_P10` where  countdate>'2021-10-01'  and categoryid<899 order by id desc")
+    raw = cursor1.fetchall()  # 读取所有
+    for ar in raw:
+        data = {}
 
+        c.append({
+            'categoryid': ar[1] + "-" + ar[2],  # product
+            'reporttype': ar[3],
+            'normalcount': ar[4],
+            'wiscount': ar[5],
+            'babycount': ar[6],
+            'countdate': ar[7],
+        })
+    data['list'] = (list(c))
+    return JsonResponse(data)
 # 品類排名
 def pinleicaijipaiming(request):
     data = {}
@@ -828,6 +835,7 @@ def pinleicaijipaiming(request):
     raw = cursor1.fetchall()  # 读取所有
     for ar in raw:
         data = {}
+
         c.append({
             'categoryid': ar[1] + "-" + ar[2],  # product
             'reporttype': ar[3],
@@ -856,7 +864,8 @@ def pipeilvbiao(request):
     data = {}
     c = []
     cursor1 = connection.cursor()
-    cursor1.execute("SELECT pci,hhp_matching,btp_matching,bbp_matching,kz_xiangzhenyangben,online_matching FROM `w_work_matching`")
+    cursor1.execute(
+        "SELECT pci,hhp_matching,btp_matching,bbp_matching,kz_xiangzhenyangben,online_matching FROM `w_work_matching`")
     raw = cursor1.fetchall()  # 读取所有
     for ar in raw:
         c.append({
@@ -1106,6 +1115,7 @@ def excel_daochu(request):
         response.write(sio.getvalue())
     return HttpResponse()
 
+
 def excel_daochu2(request):
     data = {}
     c = []
@@ -1180,6 +1190,7 @@ def excel_daochu2(request):
         response.write(sio.getvalue())
     return HttpResponse()
 
+
 def mission_find(request):
     c = []
     data = {}
@@ -1245,7 +1256,8 @@ def geren_mission(request):
                 "SELECT count(*) FROM `j_mission_up` where renwumingcheng='" + ar[2] + "' and zhuangtai !=''")
             raw4 = cursor4.fetchone()
             # 已使用
-            cursor5.execute("SELECT count(*) FROM `j_mission_up` where renwumingcheng='" + ar[2] + "' and beizhu='已使用'")
+            cursor5.execute(
+                "SELECT count(*) FROM `j_mission_up` where renwumingcheng='" + ar[2] + "' and beizhu='已使用'")
             raw5 = cursor5.fetchone()
             zhuangtainull = int(raw3[0]) - int(raw4[0])
             c.append({
@@ -2013,21 +2025,21 @@ def qianyi_find(request):
     c = []
     upmc = str(request.GET.get('upmc'))
     tiaoma = str(request.GET.get('tiaoma'))
-    all=str(request.GET.get('all'))
-    queren=str(request.GET.get('queren'))
-    weiqueren=str(request.GET.get('weiqueren'))
+    all = str(request.GET.get('all'))
+    queren = str(request.GET.get('queren'))
+    weiqueren = str(request.GET.get('weiqueren'))
 
-    if all=='1':
+    if all == '1':
         cursor1 = connection.cursor()
         cursor1.execute(
             "select * FROM mission_up where  renwumingcheng='" + upmc + "' order by id desc")
         raw = cursor1.fetchall()  # 读取所有
-    elif queren=='1':
+    elif queren == '1':
         cursor1 = connection.cursor()
         cursor1.execute(
             "select * FROM mission_up where  renwumingcheng='" + upmc + "' and zhuangtai='2' order by id desc")
         raw = cursor1.fetchall()  # 读取所有
-    elif weiqueren=='2':
+    elif weiqueren == '2':
         cursor1 = connection.cursor()
         cursor1.execute(
             "select * FROM mission_up where  renwumingcheng='" + upmc + "' and zhuangtai='1' order by id desc")
@@ -2035,7 +2047,7 @@ def qianyi_find(request):
     else:
         cursor1 = connection.cursor()
         cursor1.execute(
-            "select * FROM mission_up where  tiaoma='" + tiaoma + "' and renwumingcheng='" + upmc + "' or querenren='"+tiaoma+"'  and renwumingcheng='" + upmc + "' order by id desc")
+            "select * FROM mission_up where  tiaoma='" + tiaoma + "' and renwumingcheng='" + upmc + "' or querenren='" + tiaoma + "'  and renwumingcheng='" + upmc + "' order by id desc")
         raw = cursor1.fetchall()  # 读取所有
     for ar in raw:
         c.append({
@@ -2062,11 +2074,12 @@ def qianyi_show(request):
     data = {}
     c = []
     upmc = str(request.GET.get('upmc'))
-    name=str(request.GET.get('name'))
+    name = str(request.GET.get('name'))
     if request.GET.get('name'):
 
         cursor1 = connection.cursor()
-        cursor1.execute("select * FROM mission_up where renwumingcheng='" + upmc + "' and querenren='"+name+"' order by id desc")
+        cursor1.execute(
+            "select * FROM mission_up where renwumingcheng='" + upmc + "' and querenren='" + name + "' order by id desc")
         raw = cursor1.fetchall()  # 读取所有
         for ar in raw:
             c.append({
@@ -2269,7 +2282,7 @@ def jiadian(request):
     name = str(request.GET.get('name'))
     if request.GET.get('name'):
         cursor1 = connection.cursor()
-        cursor1.execute("select * from jd where dd='"+name+"' order by time desc")
+        cursor1.execute("select * from jd where dd='" + name + "' order by time desc")
         raw = cursor1.fetchall()  # 读取所有
         for ar in raw:
             c.append({
@@ -2678,9 +2691,9 @@ def zhidao_xl_add(request):
     region = str(request.GET.get('val'))
     name = str(request.GET.get('xl'))
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM dicc_dl where name='"+region+"'")
+    cursor.execute("SELECT * FROM dicc_dl where name='" + region + "'")
     raw = cursor.fetchall()
-    xl=raw[0][2]
+    xl = raw[0][2]
     cursor = connection.cursor()
     cursor.execute("INSERT INTO dicc_xl (xl,name) VALUES ('{}','{}')".format(xl, name))
     raw = cursor.fetchall()
@@ -2690,7 +2703,7 @@ def zhidao_xl_add(request):
 def zhidao_del(request):
     id = str(request.GET.get('id'))
     dl = str(request.GET.get('dl'))
-    name=str(request.GET.get('name'))
+    name = str(request.GET.get('name'))
     if (id == 'dl'):
         cursor = connection.cursor()
         cursor.execute("delete from dicc_dl where dl='" + dl + "'")
@@ -2856,13 +2869,15 @@ def j_shujufenjie(request):
 # 数据分解 上传及导出
 def sj_upload(request):
     img_url = ''
-    data = {}
     path = ''
     c = []
     data2 = []
     data3 = []
+    count_js=0
     ht_msg = ''
-    if request.method == "POST":
+    jsonArr = [];
+
+    if count_js == 0:
         img_url = handle_upload_file(request.FILES.get('file'), str(request.FILES['file']))
         msg = {}
         msg['msg'] = '上传成功'
@@ -2875,12 +2890,27 @@ def sj_upload(request):
         nrows = table.nrows
 
         cursor = connection.cursor()
-        cursor.execute("truncate table sjfj")
+        # cursor.execute("truncate table sjfj")
 
+        # 创建工作簿
+        wb = xlwt.Workbook(encoding='utf-8')
+        sheet = wb.add_sheet('order-sheet')
+        # 写入文件标题
+        # 创建工作薄
+        sheet.write(0, 0, u"条码")
+        sheet.write(0, 1, u"描述")
+        sheet.write(0, 2, u"品牌")
+        sheet.write(0, 3, u"价格")
+        sheet.write(0, 4, u"品牌级别")
+        sheet.write(0, 5, u"姓名")
+        sheet.write(0, 6, u"确认")
+        sheet.write(0, 7, u"QC")
+        sheet.write(0, 8, u"连接")
+        sheet.write(0, 9, u"库")
+        # 写入数据
+        excel_row = 1
         for j in (range(nrows)):
-            table.row_values(j)
-            qc = ''
-            lianjie = ''
+
             cursor2 = connection.cursor()
             cursor2.execute("SELECT * FROM fj order by id desc")
             raw = cursor2.fetchall()
@@ -2895,83 +2925,68 @@ def sj_upload(request):
                 else:
                     qc = ''
                     lianjie = ''
-            try:
-                cursor.execute(
-                    "INSERT INTO sjfj (tiaoma,miaoshu,pinpai,jiage,xingming,queren,qc,lianjie,bh,pinpaiku) "
-                    "VALUES ('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(
-                        table.row_values(j)[0],
-                        table.row_values(j)[1],
-                        table.row_values(j)[2],
-                        table.row_values(j)[3],
-                        table.row_values(j)[4],
-                        table.row_values(j)[5],
-                        qc,
-                        lianjie,
-                        table.row_values(j)[8],
-                        table.row_values(j)[9],
-                    ))
-                row = cursor.fetchall()
-                ht_msg = ''
-            except Exception:
-                ht_msg = '123'
-                break
-
-        cursor1 = connection.cursor()
-        cursor1.execute("SELECT * FROM `sjfj` order by id asc ")
-        list_obj = cursor1.fetchall()
-
-        # 创建工作簿
-        wb = xlwt.Workbook(encoding='utf-8')
-
-        sheet = wb.add_sheet('order-sheet')
-
-        # 写入文件标题
-        if list_obj:
-            # 创建工作薄
-            sheet.write(0, 0, u"id")
-            sheet.write(0, 1, u"tiaoma")
-            sheet.write(0, 2, u"miaoshu")
-            sheet.write(0, 3, u"pinpai")
-            sheet.write(0, 4, u"jiage")
-            sheet.write(0, 5, u"xingming")
-            sheet.write(0, 6, u"queren")
-            sheet.write(0, 7, u"qc")
-            sheet.write(0, 8, u"lianjie")
-            sheet.write(0, 9, u"bh")
-            sheet.write(0, 10, u"pinpaiku")
-            # 写入数据
-            excel_row = 1
-            for obj in list_obj:
-                sheet.write(excel_row, 0, obj[0])
-                sheet.write(excel_row, 1, obj[1])
-                sheet.write(excel_row, 2, obj[2])
-                sheet.write(excel_row, 3, obj[3])
-                sheet.write(excel_row, 4, obj[4])
-                sheet.write(excel_row, 5, obj[5])
-                sheet.write(excel_row, 6, obj[6])
-                sheet.write(excel_row, 7, obj[7])
-                sheet.write(excel_row, 8, obj[8])
-                sheet.write(excel_row, 9, obj[9])
-                sheet.write(excel_row, 10, obj[10])
-                count = 0
-                excel_row = excel_row + count + 1
-
-                # 检测文件是够存在
+            str_v=table.row_values(j)[0]
+            def pinpaiku(gjz,str_v):
+                if str(gjz)=='690' or str(gjz)=='691':
+                    c=str_v[0:7]
+                    print(c)
+                    cursor = connection.cursor()
+                    cursor.execute("SELECT * FROM pinpaiku where code='" + c + "' order by id desc")
+                    raw3 = cursor.fetchall()
+                    d = raw3
+                elif str(gjz)=='692' or str(gjz)=='693' or str(gjz)=='694' or str(gjz)=='695' or str(gjz)=='696':
+                    c = str_v[0:8]
+                    cursor2 = connection.cursor()
+                    cursor2.execute("SELECT * FROM pinpaiku where code='" + c + "' order by id desc")
+                    raw = cursor2.fetchall()
+                    d = raw
+                elif str(gjz)=='697' or str(gjz)=='698' or str(gjz)=='699':
+                    c = str_v[0:9]
+                    cursor2 = connection.cursor()
+                    cursor2.execute("SELECT * FROM pinpaiku where code='" + c + "' order by id desc")
+                    raw = cursor2.fetchall()
+                    d = raw
+                else:
+                    c = str_v[0:8]
+                    cursor2 = connection.cursor()
+                    cursor2.execute("SELECT * FROM pinpaiku where code='" + c + "' order by id desc")
+                    raw = cursor2.fetchall()
+                    d = raw
+                return d
+            gjz=str_v[0:3]
+            pinpai_fj=pinpaiku(gjz,str_v)
+            if len(pinpai_fj):
+                pinpai_fj = pinpai_fj[0][2]
+            else:
+                pinpai_fj=''
+            table.row_values(j)
+            sheet.write(excel_row, 0, table.row_values(j)[0])
+            sheet.write(excel_row, 1, table.row_values(j)[1])
+            sheet.write(excel_row, 2, table.row_values(j)[2])
+            sheet.write(excel_row, 3, table.row_values(j)[3])
+            sheet.write(excel_row, 4, table.row_values(j)[4])
+            sheet.write(excel_row, 5, table.row_values(j)[5])
+            sheet.write(excel_row, 6, lianjie)
+            sheet.write(excel_row, 7, qc)
+            sheet.write(excel_row, 8, '')
+            sheet.write(excel_row, 9, pinpai_fj)
+            count = 0
+            excel_row = excel_row + count + 1
+            # 检测文件是够存在
             ###########################以下为正确代码
             # os.path.exists判断括号里的文件是否存在的意思，括号内的可以是文件路径。
-            exist_file = os.path.exists(r"./upload/数据分解.xls")
-            if exist_file:
-                os.remove(r"./upload/数据分解.xls")
-            wb.save(r"./upload/数据分解.xls")
-            # BytesIO操作二进制数据
-            sio = BytesIO()
-            wb.save(sio)
-            # seek()方法用于移动文件读取指针到指定位置
-            sio.seek(0)
-            response = HttpResponse(sio.getvalue(), content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = 'attachment; filename=./upload/数据分解.xls'
-            response.write(sio.getvalue())
-
+        exist_file = os.path.exists(r"./upload/数据分解.xls")
+        if exist_file:
+            os.remove(r"./upload/数据分解.xls")
+        wb.save(r"./upload/数据分解.xls")
+        # BytesIO操作二进制数据
+        sio = BytesIO()
+        wb.save(sio)
+        # seek()方法用于移动文件读取指针到指定位置
+        sio.seek(0)
+        response = HttpResponse(sio.getvalue(), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=./upload/数据分解.xls'
+        response.write(sio.getvalue())
     return HttpResponse(ht_msg)
 
 
@@ -3208,7 +3223,7 @@ def kaohe_ck2(request):
     c = []
     cursor = connection.cursor()
     cursor.execute("SELECT * from kaoshi_timu_gth ORDER BY RAND() LIMIT 0,20")
-    #cursor.execute("SELECT * from kaoshi_timu_gth")
+    # cursor.execute("SELECT * from kaoshi_timu_gth")
     raw = cursor.fetchall()
     for ar in (raw):
         c.append({

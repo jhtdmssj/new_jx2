@@ -19,7 +19,7 @@ from django.urls import path
 from django.contrib import admin
 from django.urls import path
 from django.urls import re_path as url
-from houtai import index,views,upload_excel,tests,jx_new_jixiao,ceshi,map,api
+from houtai import index,views,upload_excel,tests,jx_new_jixiao,ceshi,map,api,DX,apps
 
 from django.conf.urls.static import static
 from . import settings
@@ -65,6 +65,8 @@ urlpatterns = [
     path('meirizidongchulishuju/', index.meirizidongchulishuju),
     path('stfchulibiao/', index.stfchulibiao),
     path('pinleicaijipaiming/', index.pinleicaijipaiming),
+    path('pinleicaijipaiming_P10/', index.pinleicaijipaiming_P10),
+
     path('kuaidiwuliu/', tests.kuaidiwuliu),
     path('performance/', jx_new_jixiao.performance),
     path('performance2020/', jx_new_jixiao.performance2020),
@@ -138,6 +140,10 @@ urlpatterns = [
     path('peixun_ck/', index.peixun_ck),
     path('peixun_xg/', index.peixun_xg),
     path('peixun_del/', index.peixun_del),
+
+    path('DX_upload/', DX.DX_upload),
+    path('process_data/', apps.process_data),
+    path('show_progress/', apps.show_progress),
 
 ]
 
