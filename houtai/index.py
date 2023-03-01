@@ -1,12 +1,10 @@
 # # -*- coding: utf-8 -*-
 import os
-
 from django.db import connection
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from houtai.models import User, jx_jixiao, j_mission_up
 from django.db.models import Q
 import xlwt, xlrd
-import datetime
 from io import BytesIO
 import urllib
 import urllib.request
@@ -14,25 +12,52 @@ import ssl
 import time
 import json
 from tqdm import tqdm
+import jwt
+from datetime import datetime, timedelta
 def timec(request):
     for i in tqdm(range(100), desc='Test'):
         tqdm.write('当前i={}'.format(i))
         time.sleep(2)
     return HttpResponse()
+
 def login(request):
+
+
     username = request.GET.get('value1')
     password2 = request.GET.get('value2')
+    payload = {
+        'exp': datetime.now() + timedelta(minutes=30),
+        'username': username
+    }
+    key = 'SECRET_KEY'
+    encoded_jwt = jwt.encode(payload, key, algorithm='HS256')
     list = User.objects.filter(name=username).filter(password=password2)
     if list:
         for var in list:
             response1 = var.name
-            response2 = var.password
-            # request.session['dj_name'] = var.name
-
-            return JsonResponse({'code': 2, 'message': '登录成功_您好：' + response1 + '', 'user': response1})
+            response2 = var.id
+        return JsonResponse({'code': 2, 'message': '登录成功_您好：' + response1 + '', 'user': response1,'id': response2,'token':encoded_jwt})
     else:
         return JsonResponse({'code': 1, 'message': '用户名或密码错误，请重新输入'})
-    return
+
+def decode_token(username,token):
+    user_name = username
+    key = 'SECRET_KEY'
+    payload={
+        'username':user_name,
+    }
+    try:
+        _payload = jwt.decode(payload, key, algorithm='HS256')
+    except jwt.PyJWTError:
+        print("失败")
+        return False
+    else:
+        exp = datetime.now() + timedelta(minutes=30)
+        print(exp)
+        if time.time()> exp:
+            print('过期')
+            return False
+        return payload==_payload
 # 后台跑库 已经忘记干嘛用的了（- -！）
 def houtai_jx(request):
     # 第一步 jx_jixiao表里的内容全部删除
@@ -73,8 +98,6 @@ def houtai_jx(request):
     cursor1.execute(
         "SELECT * FROM `jx_zhouqibiao`,`user`,`jx_zhourenwu` WHERE USER.qx = '4' AND jx_zhourenwu.user_id=user.id and pici='9' and zhou='2'")
     raw = cursor1.fetchall()  # 读取所有
-    # 获取当前系统日期
-    dqdate = datetime.datetime.now().strftime('%Y-%m-%d')
 
     for ar in raw:
         # 如果当前日期小于等于 绩效日期 就停止
@@ -2622,7 +2645,7 @@ def sanzhoujixiao(request):
     data = {}
     c = []
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM sanzhoujixiao where time >'2021-01-01' order by id desc")
+    cursor.execute("SELECT * FROM sanzhoujixiao where time >'2023-01-04' order by id desc")
     raw = cursor.fetchall()
     for ar in (raw):
         c.append({
@@ -2661,7 +2684,7 @@ def sanzhoujixiao_find(request):
     c = []
     pci = str(request.GET.get('pci2'))
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM sanzhoujixiao where time >'2022-01-01' and pci='" + pci + "' order by id desc")
+    cursor.execute("SELECT * FROM sanzhoujixiao where time >'2023-01-04' and pci='" + pci + "' order by id desc")
     raw = cursor.fetchall()
     for ar in (raw):
         c.append({
@@ -3438,3 +3461,77 @@ def peixun_add(request):
     raw = cursor.fetchall()
     return HttpResponse()
 # 培训结束---------------------------------------------------------
+
+# 图标20221118
+def pic_counttype_1_20221118(request):
+    data = {}
+    data2 = {}
+    c = []
+    cursor = connection.cursor()
+    cursor.execute("select * from w_category_count where counttype='1' and datatype='1' order by amount desc")
+    raw = cursor.fetchall()
+    for ar in (raw):
+        c.append({
+            'categoryid': int(ar[1]),
+            'categoryname': ar[2],
+            'amount': ar[3],
+            'datatype': ar[4],
+            'begtime': ar[5],
+            'endtime': ar[6],
+            'countdate': ar[7],
+            'counttype': ar[8],
+        })
+    data['list'] = (list(c))
+    return JsonResponse(data)
+
+def pic_counttype_1_20221201(request):
+    data = {}
+    data2 = {}
+    c = []
+    begTime = str(request.GET.get('begTime'))
+    endTime = str(request.GET.get('endTime'))
+    cursor = connection.cursor()
+    cursor.execute("select * from w_category_count where counttype='1' and datatype='1' and begtime>='" + begTime + "' and endtime<='" + endTime+"' order by amount desc")
+    raw = cursor.fetchall()
+    for ar in (raw):
+        c.append({
+            'categoryid': int(ar[1]),
+            'categoryname': ar[2],
+            'amount': ar[3],
+            'datatype': ar[4],
+            'begtime': ar[5],
+            'endtime': ar[6],
+            'countdate': ar[7],
+            'counttype': ar[8],
+        })
+    data['list'] = (list(c))
+    print(data)
+    return JsonResponse(data)
+
+
+def ewm(request):
+    id = str(request.GET.get('id'))
+    time = str(request.GET.get('time'))
+    cursor = connection.cursor()
+    cursor.execute( "select * from user where id='"+id+"'")
+    raw = cursor.fetchall()
+
+
+    cursor2 = connection.cursor()
+    cursor2.execute("INSERT INTO bx (chengshi,dudao,tijiaoriqi) VALUES ('{}','{}','{}')".format(raw[0][6],raw[0][1],time))
+    raw2 = cursor2.fetchall()
+    return HttpResponseRedirect('http://218.241.201.168:38001/jht/#/success')
+def ewm_list(request):
+    c=[]
+    data = {}
+    cursor = connection.cursor()
+    cursor.execute( "select * from bx order by id asc")
+    raw = cursor.fetchall()
+    for ar in (raw):
+        c.append({
+            'chengshi': str(ar[1]),
+            'dudao': ar[2],
+            'tijiaoriqi': ar[4],
+        })
+    data['list'] = (list(c))
+    return JsonResponse(data)

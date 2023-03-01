@@ -1,5 +1,3 @@
-import os
-
 from django.contrib.sites import requests
 from django.db import connection
 from django.http import JsonResponse, HttpResponse
@@ -9,16 +7,17 @@ import xlwt, xlrd
 import datetime
 from io import BytesIO
 import time
+import barcode
+from barcode.writer import ImageWriter
 import json
 import requests
-from new_jx import settings
+import os
+
 def test_kd(request):
-    # 需要安装：  pip install requests
-    # 以下需要修改
-    appcode = "1fb56623de844f1bb2de46c28a2db5cf"
+    appcode = "8fdc7e5d1ff74d09b59e420ad880bb24"
     req_data = {
-        'com': 'zhongtong',
-        'nu': '75450632975559',
+        'com': 'auto',
+        'nu': '3588331101612',
         'receiverPhone': '',
         'senderPhone': ''
     }
@@ -41,12 +40,12 @@ def test_kd(request):
     msg = html.headers.get('X-Ca-Error-Message')
     status = html.status_code
 
-
     if status == 200:
         print("status为200，请求成功，计费1次。（status非200时都不计费）")
     else:
         if (status == 400 and msg == 'Invalid AppCode'):
-            print("AppCode不正确，请到用户后台获取正确的AppCode： https://market.console.aliyun.com/imageconsole/index.htm")
+            print(
+                "AppCode不正确，请到用户后台获取正确的AppCode： https://market.console.aliyun.com/imageconsole/index.htm")
         elif (status == 400 and msg == 'Invalid Path or Method'):
             print("url地址或请求的'GET'|'POST'方式不对")
         elif (status == 403 and msg == 'Unauthorized'):
@@ -62,34 +61,33 @@ def test_kd(request):
 
     print("---------response body is:-------------")
     print(html.text)
-
 def kuaidiwuliu(request):
     data = {}
     c = []
     cursor1 = connection.cursor()
-    cursor1.execute("SELECT * FROM `j_kuaidi` where id >= 64554")
+    cursor1.execute("SELECT * FROM `j_kuaidi` where id>6009")
     #cursor1.execute("SELECT * FROM `j_kuaidi`")
     raw = cursor1.fetchall()  # 读取所有s
     for ar in raw:
-        appcode = "1fb56623de844f1bb2de46c28a2db5cf"
+        appcode = "8fdc7e5d1ff74d09b59e420ad880bb24"
         req_data = {
             'com': 'auto',
             'nu': ar[1],
             'receiverPhone': '',
             'senderPhone': ''
         }
-        url = "http://ali-deliver.showapi.com/showapi_expInfo"
+        url = "https://ali-deliver.showapi.com/showapi_expInfo"
         headers = {
             'Authorization': 'APPCODE ' + appcode
         }
-        print(req_data)
-        print(headers)
         try:
             html = requests.get(url, headers=headers, data=req_data)
-
+            dict_str = json.loads(html.text)
+            print(html.status_code)
+            print(dict_str)
         except:
             print("URL错误")
-            exit()
+
         msg = html.headers.get('X-Ca-Error-Message')
         status = html.status_code
         if status == 200:
@@ -98,7 +96,6 @@ def kuaidiwuliu(request):
             msg = "成功"
             kuaidigongsi = dict_str['showapi_res_body']['expTextName']
             if dict_str['showapi_res_body']['flag'] == True:
-                print(dict_str['showapi_res_body'])
                 shifadi = dict_str['showapi_res_body']['data'][0]['context'][0:5]
                 shifa_shijian = dict_str['showapi_res_body']['data'][0]['time']
                 daodadi = dict_str['showapi_res_body']['data'][-1]['context'][0:5]
@@ -112,7 +109,6 @@ def kuaidiwuliu(request):
                 cursor2.execute(
                     "INSERT INTO j_kuaidifenjie (code,msg,kuaidigongsi) VALUES ('" + code + "','" + msg + "','" + kuaidigongsi + "')")
                 raw2 = cursor2.fetchall()  # 读取所有
-            print(dict_str['showapi_res_body']['flag'])
         else:
             if (status == 400 and msg == 'Invalid AppCode'):
                 print("AppCode不正确，请到用户后台获取正确的AppCode： https://market.console.aliyun.com/imageconsole/index.htm")
@@ -135,6 +131,18 @@ def kuaidiwuliu(request):
 
     return HttpResponse()
 
+def tiaomashengcheng(request):
+    tiaoma = str(request.GET.get('tiaoma'))
+    barcode_format=barcode.get_barcode_class('EAN13')
+    my_barcode=barcode_format(tiaoma,writer=ImageWriter())
+    path=r"./upload/tiaoxingma/"
+    num_png=len(os.listdir(path))
+    if num_png >= 10:
+        for file_name in os.listdir(path):
+            os.remove(r"./upload/tiaoxingma/"+file_name)
+    my_barcode.save(r"./upload/tiaoxingma/" + tiaoma)
+    return HttpResponse()
 
 if __name__ == "__main__":
     kuaidiwuliu()
+    #tiaomashengcheng()

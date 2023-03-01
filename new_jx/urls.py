@@ -68,6 +68,8 @@ urlpatterns = [
     path('pinleicaijipaiming_P10/', index.pinleicaijipaiming_P10),
 
     path('kuaidiwuliu/', tests.kuaidiwuliu),
+    path('tiaomashengcheng/', tests.tiaomashengcheng),
+
     path('performance/', jx_new_jixiao.performance),
     path('performance2020/', jx_new_jixiao.performance2020),
     path('defen/', index.defen),
@@ -77,7 +79,6 @@ urlpatterns = [
     path('kaoqin_up/', index.kaoqin_up),
     path('kaoqin_del/', index.kaoqin_del),
     path('kaoqin_ck_riqi/', index.kaoqin_ck_riqi),
-    path('testcs/', ceshi.testcs),
     path('map_zb/', map.map_zb),
     path('map_list/', map.map_list),
     path('map_list2/', map.map_list2),
@@ -140,11 +141,18 @@ urlpatterns = [
     path('peixun_ck/', index.peixun_ck),
     path('peixun_xg/', index.peixun_xg),
     path('peixun_del/', index.peixun_del),
+    path('decode_token/', index.decode_token),
 
     path('DX_upload/', DX.DX_upload),
     path('process_data/', apps.process_data),
     path('show_progress/', apps.show_progress),
 
+    path('pic_counttype_1_20221118/', index.pic_counttype_1_20221118),
+    path('pic_counttype_1_20221201/', index.pic_counttype_1_20221201),
+    #下面是图标用
+    # path('quyu_renyuan/', ceshi.quyu_renyuan),
+    path('ewm', index.ewm),
+    path('ewm_list', index.ewm_list),
 ]
 
 urlpatterns += static('/upload/', document_root=settings.MEDIA_ROOT)
